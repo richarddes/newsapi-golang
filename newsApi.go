@@ -167,7 +167,7 @@ func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error)
 
 		return body, nil
 	} else if strings.HasSuffix(baseURL, "/sources") {
-		var body sourcesResp
+		var body SourcesResp
 
 		err = json.NewDecoder(resp.Body).Decode(&body)
 		if err != nil {

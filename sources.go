@@ -20,7 +20,7 @@ type source struct {
 	Country     string `json:"country"`
 }
 
-type sourcesResp struct {
+type SourcesResp struct {
 	Status  string   `json:"status"`
 	Sources []source `json:"sources"`
 }
@@ -42,18 +42,18 @@ func checkSourcesParams(opts SourcesOpts) error {
 }
 
 // Sources fetches data from the /sources route and returns the content as a struct
-func (c *Client) Sources(opts SourcesOpts) (sourcesResp, error) {
+func (c *Client) Sources(opts SourcesOpts) (SourcesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkSourcesParams(opts)
 		if err != nil {
-			return sourcesResp{}, err
+			return SourcesResp{}, err
 		}
 	}
 
 	body, err := fetchGetRoute("https://newsapi.org/v2/sources", c.APIKey, opts)
 	if err != nil {
-		return sourcesResp{}, err
+		return SourcesResp{}, err
 	}
 
-	return body.(sourcesResp), nil
+	return body.(SourcesResp), nil
 }

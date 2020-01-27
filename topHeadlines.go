@@ -12,6 +12,10 @@ type TopHeadlinesOpts struct {
 	PageSize, Page       int
 }
 
+// TopHeadlinesResp is want is being returned by the TopHeadlines route
+// it only exists to be a more obvious than articleResp
+type TopHeadlinesResp articleResp
+
 func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
 	if opts.Q == "" && opts.Category == "" && opts.Country == "" && len(opts.Sources) < 1 {
 		return errors.New("At least one of the following options must be specified: Q, Category, Country, Sources")
@@ -37,18 +41,18 @@ func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
 }
 
 // TopHeadlines fetches data from the /top-headlines route and returns the content as a struct
-func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (articleResp, error) {
+func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkTopHeadlinesParams(opts)
 		if err != nil {
-			return articleResp{}, err
+			return TopHeadlinesResp{}, err
 		}
 	}
 
 	body, err := fetchGetRoute("https://newsapi.org/v2/top-headlines", c.APIKey, opts)
 	if err != nil {
-		return articleResp{}, err
+		return TopHeadlinesResp{}, err
 	}
 
-	return body.(articleResp), nil
+	return body.(TopHeadlinesResp), nil
 }

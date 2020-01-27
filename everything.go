@@ -15,6 +15,10 @@ type EverythingOpts struct {
 	Page                             int
 }
 
+// EverythingResp is what's being returned by the Everything route
+// it only exists to be a more obvious than articleResp
+type EverythingResp articleResp
+
 func checkEverythingParams(opts EverythingOpts) error {
 	if opts.Q == "" && opts.QInTitle == "" && len(opts.Sources) < 1 && len(opts.Domains) < 1 {
 		return errors.New("At least one of the following options must be specified: Q, QInTitle, Sources, Domains")
@@ -40,18 +44,18 @@ func checkEverythingParams(opts EverythingOpts) error {
 }
 
 // Everything fetches data from the /everything route and returns the content as a struct
-func (c *Client) Everything(opts EverythingOpts) (articleResp, error) {
+func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkEverythingParams(opts)
 		if err != nil {
-			return articleResp{}, err
+			return EverythingResp{}, err
 		}
 	}
 
 	body, err := fetchGetRoute("https://newsapi.org/v2/everything", c.APIKey, opts)
 	if err != nil {
-		return articleResp{}, err
+		return EverythingResp{}, err
 	}
 
-	return body.(articleResp), nil
+	return body.(EverythingResp), nil
 }
