@@ -52,7 +52,9 @@ type articleSource struct {
 	Name string `json:"name"`
 }
 
-type article struct {
+// Article represents the article in the /top-headlines and /everythin route; it is public to
+// simplify the use of articles
+type Article struct {
 	Source      articleSource `json:"source"`
 	Author      string        `json:"author"`
 	Title       string        `json:"title"`
@@ -67,7 +69,7 @@ type article struct {
 type articleResp struct {
 	Status       string    `json:"status"`
 	TotalResults uint      `json:"totalResults"`
-	Articles     []article `json:"articles"`
+	Articles     []Article `json:"articles"`
 }
 
 func isOptOf(userOpt string, optArr []string) bool {
