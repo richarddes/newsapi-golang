@@ -57,5 +57,7 @@ func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
 		return EverythingResp{}, err
 	}
 
-	return body.(EverythingResp), nil
+	// we need this kind of type conversation because fetchGetRoute can only be parsed to the articleResp type
+	// otherwise there will be an error
+	return EverythingResp(body.(articleResp)), nil
 }

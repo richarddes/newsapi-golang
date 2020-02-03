@@ -54,5 +54,7 @@ func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 		return TopHeadlinesResp{}, err
 	}
 
-	return body.(TopHeadlinesResp), nil
+	// we need this kind of type conversation because fetchGetRoute can only be parsed to the articleResp type
+	// otherwise there will be an error
+	return TopHeadlinesResp(body.(articleResp)), nil
 }
