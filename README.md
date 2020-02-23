@@ -15,9 +15,8 @@ Every project has to first initialize a client obejct with an API key like so:
 ```go
 c := newsapi.Client{APIKey: "your-api-key"}
 ```
-After that, we can call one of three methods of the Client object. The methods are called **TopHeadlines**, **Everything** and
-**Sources**. Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end.
-Here's an example of fetching the top headlines from the US:
+After that, we can call one of three methods of the Client object. The methods are called **TopHeadlines**, **Everything** and **Sources**. Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end.
+Here's an example of fetching the top headlines from the UK:
 ```go
 opts := newsapi.TopHeadlinesOpts{
   Country: "uk",
@@ -34,6 +33,26 @@ You also cannot specify the Sources option in conjunction with the Category or C
 When fetching everything at least one of the following options must be specified: Q, QInTitle, Sources or Domains
 
 For more details about the options structs please refer to the [docs](https://godoc.org/github.com/richarddes/newsapi-golang).
+
+Since the **TopHeadlines** and **Everything** routes both return a response type of the same underlying type called "articleResp" you can cast them from one to another: 
+```go
+thr := newsapi.TopHeadlinesResp{}
+er := newsapi.EverythingResp(t)
+```
+The decision to give the two routes different response types has been made to make the API more explicit but this might change in the future.
+
+The API also has an "Article" type which represents an article in the "Articles" field of the "TopHeadlinesResp" or "EverythingResp" object. It's useful if you want to store the Articles returned by the **TopHeadlines** and **Everything** routes in a database.   
+Here's a quick example of how to print the Titles of all articles returned by the **TopHeadlines** route:
+```go
+opts := newsapi.TopHeadlinesOpts{
+  Country: "uk",
+}
+
+r, err := c.TopHeadlines(opts)
+for _, a in range r.Articles {
+	fmt.Println(article.Title)	
+}
+```
 
 
 ## Full Example
