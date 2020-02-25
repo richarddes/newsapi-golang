@@ -66,6 +66,7 @@ import (
 	"log"
 
 	"github.com/richarddes/newsapi-golang"
+	_ "github.com/lib/pq"
 )
 
 func main() {
