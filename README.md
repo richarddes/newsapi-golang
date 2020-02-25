@@ -15,7 +15,7 @@ Every project has to first initialize a client obejct with an API key like so:
 ```go
 c := newsapi.Client{APIKey: "your-api-key"}
 ```
-After that, we can call one of three methods of the Client object. The methods are called **TopHeadlines**, **Everything** and **Sources**. Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end.
+After that, one of three methods of the Client object can be called. The methods are called **TopHeadlines**, **Everything** and **Sources**. Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end.
 Here's an example of fetching the top headlines from the UK:
 ```go
 opts := newsapi.TopHeadlinesOpts{
@@ -56,18 +56,31 @@ for _, a in range r.Articles {
 
 
 ## Full Example
-Here's a full runnable example where we fetch the top headlines in the "business" category and print the title of each article we've received.
+Here's a full runnable example on how to fetch the top headlines in the "business" category and save the recieved articles in a PostgreSQL database.The articles are being saved in a table with following schema:   
+news(url TEXT PRIMARY KEY, author TEXT, title TEXT, source TEXT)
 ```go
 package main
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 
 	"github.com/richarddes/newsapi-golang"
 )
 
 func main() {
+	db, err := sql.Open("postgres", "user=user password=password host=localhost port=5432")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	stmt, err := db.Prepare("INSERT INTO news VALUES($1,$2,$3,$4);")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c := newsapi.Client{APIKey: "your-api-key"}
 	opts := newsapi.TopHeadlinesOpts{
 		Country: "uk",
@@ -79,10 +92,12 @@ func main() {
 	}
 
 	for _, article := range r.Articles {
-		fmt.Println(article.Title)
+		_, err := stmt.Exec(article.URL, article.Author, article.Title, article.Source)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
-
 ```
 
 ## Contributing
