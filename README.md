@@ -1,7 +1,7 @@
 # NewsAPI Golang
 [![GoDoc](https://godoc.org/github.com/richarddes/newsapi-golang?status.svg)](https://godoc.org/github.com/richarddes/newsapi-golang)
 
-A simple to use Golang client for [NewsAPI](https://newsapi.org/).
+A simple to use Golang client for the [NewsAPI](https://newsapi.org/) service.
 
 Before you use the package you should read the NewsAPI [docs](https://newsapi.org/docs) to get familiar with the endpoints and their options.
 
