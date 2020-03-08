@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Client represents the client
+// Client represents the client type for the apu
 type Client struct {
 	APIKey string
 }
@@ -45,15 +45,15 @@ var (
 	}
 )
 
-// also called source in the json response but has different vlaues than
-// the sources field from the sources route
+// articleSource is called "source" in the json response but it has a different values
+// than the "sources" field in the /sources field.
 type articleSource struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
-// Article represents the article in the /top-headlines and /everythin route; it is public to
-// simplify the use of articles
+// The Article type represents an article returned in the "articles" field of the /everything and
+// /top-headliens routes.
 type Article struct {
 	Source      articleSource `json:"source"`
 	Author      string        `json:"author"`
@@ -65,7 +65,8 @@ type Article struct {
 	Content     string        `json:"content"`
 }
 
-// articleResp represents the response object that is returned by the /everything and /top-headlines routes
+// articleResp is the underlying type for the TopHeadlinesResp and EverythingResp types. It represents
+// the  response from the /top-headlines and /everything routes.
 type articleResp struct {
 	Status       string    `json:"status"`
 	TotalResults uint      `json:"totalResults"`
@@ -73,6 +74,8 @@ type articleResp struct {
 }
 
 func isOptOf(userOpt string, optArr []string) bool {
+	// There's not really a reason to use binary search here as it doesn't improve performence
+	// significantly, but hey, why not? We need less lines of code that way (one or two less probably)
 	i := sort.SearchStrings(optArr, userOpt)
 	if i >= len(optArr) || optArr[i] != userOpt {
 		return false
@@ -81,8 +84,8 @@ func isOptOf(userOpt string, optArr []string) bool {
 	return true
 }
 
-// constructURL construct a url by taking the fields of a struct as url param keys and the struct values as param values
-// it does not check if the url is a valid url; it only appends params to a base url
+// constructURL construct a url by taking the fields of a struct as url param keys and the struct values as param values.
+// It does not check if the url is a valid url; it only appends params to a base url
 func constructURL(baseURL string, opt interface{}) (string, error) {
 	s := reflect.ValueOf(opt)
 
@@ -90,7 +93,6 @@ func constructURL(baseURL string, opt interface{}) (string, error) {
 		s = reflect.Indirect(s)
 	}
 
-	// check that opt is of type struct
 	if s.Kind() != reflect.Struct {
 		return "", errors.New("Expected opt param to be of type struct but got something different")
 	}
@@ -104,7 +106,6 @@ func constructURL(baseURL string, opt interface{}) (string, error) {
 			fieldValue = s.Field(i)
 		)
 
-		// rewrite to switch
 		if fieldValue.IsValid() {
 			switch kind := fieldValue.Kind(); {
 			case kind == reflect.String && fieldValue.String() != "":
@@ -135,8 +136,8 @@ func constructURL(baseURL string, opt interface{}) (string, error) {
 	return result, nil
 }
 
-// fectchGetRoute exclusively fetches GET routes as other http methods aren't currently supported by the News API service
-// and adding a param for the http methood seems unnecessary
+// fectchGetRoute exclusively fetches GET routes as other http methods aren't currently supported by the "NewsAPI" service
+// and adding a param for the http methood seems unnecessary and just makes things more complicated
 func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error) {
 	if apiKey == "" {
 		return nil, errors.New("The API key cannot be nil")

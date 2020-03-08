@@ -8,15 +8,16 @@ import (
 
 // EverythingOpts defines the options for the /everything route
 type EverythingOpts struct {
-	Sources, Domains, ExcludeDomains []string
+	PageSize                         uint8  // cannot be larger than 100 and smaller than 0 so uint8 is sufficient
+	Page                             uint16 // unlikely to be larger than ~65k
 	Q, QInTitle, Language, SortBy    string
 	From, To                         time.Time
-	PageSize                         uint8 // cannot be larger than 100 and smaller than 0 so uint8 is sufficient
-	Page                             int
+	Sources, Domains, ExcludeDomains []string
 }
 
-// EverythingResp is what's being returned by the Everything route
-// it only exists to be a more obvious than articleResp
+// EverythingResp represents what's being returned by the /everything route. It relys on the same
+// underlying type (called articleResp) that the TopHeadlinesResp type relys on. That means that
+// it can easily be casted to the TopHeadlinesResp type.
 type EverythingResp articleResp
 
 func checkEverythingParams(opts EverythingOpts) error {
@@ -43,7 +44,7 @@ func checkEverythingParams(opts EverythingOpts) error {
 	return nil
 }
 
-// Everything fetches data from the /everything route and returns the content as a struct
+// Everything fetches the data from the /everything route and returns the response as an EverythingResp object
 func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkEverythingParams(opts)

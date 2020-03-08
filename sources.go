@@ -20,6 +20,7 @@ type source struct {
 	Country     string `json:"country"`
 }
 
+// SourcesResp represents what's being returned by the /source route
 type SourcesResp struct {
 	Status  string   `json:"status"`
 	Sources []source `json:"sources"`
@@ -41,7 +42,7 @@ func checkSourcesParams(opts SourcesOpts) error {
 	return nil
 }
 
-// Sources fetches data from the /sources route and returns the content as a struct
+// Sources fetches data from the /sources route and returns the content as a SourcesResp object
 func (c *Client) Sources(opts SourcesOpts) (SourcesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkSourcesParams(opts)

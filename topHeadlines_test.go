@@ -5,24 +5,41 @@ import (
 )
 
 func TestCheckTopHeadlinesParams(t *testing.T) {
-	cases := []TopHeadlinesOpts{
-		TopHeadlinesOpts{
+	cases := []struct {
+		c     TopHeadlinesOpts
+		valid bool
+	}{
+		{TopHeadlinesOpts{}, false},
+		{TopHeadlinesOpts{
+			PageSize: 101,
+		}, false},
+		{TopHeadlinesOpts{
 			Category: "business",
 			Sources:  []string{"reuters.com"},
-		},
-		TopHeadlinesOpts{
+		}, false},
+		{TopHeadlinesOpts{
 			Country: "de",
 			Sources: []string{"reuters.com"},
-		},
-		TopHeadlinesOpts{
-			PageSize: 101,
-		},
-		TopHeadlinesOpts{},
+		}, false},
+		{TopHeadlinesOpts{
+			Category: "health",
+		}, true},
+		{TopHeadlinesOpts{
+			Country:  "us",
+			PageSize: 100,
+		}, true},
 	}
 
 	for _, i := range cases {
-		if checkTopHeadlinesParams(i) == nil {
-			t.Errorf("Expected error but got nil when case=%v", i)
+		err := checkTopHeadlinesParams(i.c)
+		if !i.valid {
+			if err == nil {
+				t.Errorf("Expected error but got nil when case=%v", i)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("Unexpected error %v whenc case=%v", err, i.c)
+			}
 		}
 	}
 }

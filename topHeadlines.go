@@ -7,13 +7,15 @@ import (
 
 // TopHeadlinesOpts defines the options for the /top-headlines route
 type TopHeadlinesOpts struct {
-	Sources              []string
+	PageSize             uint8  // cannot be larger than 100 and smaller than 0 so uint8 is sufficient
+	Page                 uint16 // unlikely to be larger than ~65k
 	Q, Category, Country string
-	PageSize, Page       int
+	Sources              []string
 }
 
-// TopHeadlinesResp is want is being returned by the TopHeadlines route
-// it only exists to be a more obvious than articleResp
+// TopHeadlinesResp represents what's being returned by the /everything route. It relys on the same
+// underlying type (called articleResp) that the EverythingResp type relys on. That means that
+// it can easily be casted to the EverythingResp type.
 type TopHeadlinesResp articleResp
 
 func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
@@ -40,7 +42,7 @@ func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
 	return nil
 }
 
-// TopHeadlines fetches data from the /top-headlines route and returns the content as a struct
+// TopHeadlines fetches the data from the /top-headlines route and returns the response as a TopHeadlinesResp object
 func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkTopHeadlinesParams(opts)
