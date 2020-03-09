@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// EverythingOpts defines the options for the /everything route
+// EverythingOpts defines the options for the /everything route.
 type EverythingOpts struct {
 	PageSize                         uint8  // cannot be larger than 100 and smaller than 0 so uint8 is sufficient
 	Page                             uint16 // unlikely to be larger than ~65k
@@ -44,7 +44,7 @@ func checkEverythingParams(opts EverythingOpts) error {
 	return nil
 }
 
-// Everything fetches the data from the /everything route and returns the response as an EverythingResp object
+// Everything fetches the data from the /everything route and returns the response as an EverythingResp object.
 func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkEverythingParams(opts)

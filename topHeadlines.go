@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// TopHeadlinesOpts defines the options for the /top-headlines route
+// TopHeadlinesOpts defines the options for the /top-headlines route.
 type TopHeadlinesOpts struct {
 	PageSize             uint8  // cannot be larger than 100 and smaller than 0 so uint8 is sufficient
 	Page                 uint16 // unlikely to be larger than ~65k
@@ -42,7 +42,7 @@ func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
 	return nil
 }
 
-// TopHeadlines fetches the data from the /top-headlines route and returns the response as a TopHeadlinesResp object
+// TopHeadlines fetches the data from the /top-headlines route and returns the response as a TopHeadlinesResp object.
 func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkTopHeadlinesParams(opts)
