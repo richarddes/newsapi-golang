@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// Client represents the client type for the apu
+// Client represents the client type for the API. It represents the entry point for the library.
 type Client struct {
 	APIKey string
 }
@@ -44,6 +44,13 @@ var (
 		"relevancy",
 	}
 )
+
+// statusBody represents the response status. It's being used to determine if the request was successful ot not. If the
+// request failed the message returned by the NewsAPI service will be returned to the user.
+type statusBody struct {
+	Status string `json:"status"`
+	Msg    string `json:"message"`
+}
 
 // articleSource is called "source" in the json response but it has a different values
 // than the "sources" field in the /sources field.
@@ -159,11 +166,24 @@ func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error)
 		return nil, err
 	}
 
+	var errBody statusBody
+
+	dc := json.NewDecoder(resp.Body)
+
+	err = dc.Decode(&errBody)
+	if err != nil {
+		return nil, err
+	}
+
+	if errBody.Status == "error" {
+		return nil, errors.New("The NewsAPI send the following error: \"" + errBody.Msg + "\"")
+	}
+
 	// parse the json into the specific return type based on the baseURL route
 	if strings.HasSuffix(baseURL, "/top-headlines") || strings.HasSuffix(baseURL, "/everything") {
 		var body articleResp
 
-		err = json.NewDecoder(resp.Body).Decode(&body)
+		err = dc.Decode(&body)
 		if err != nil {
 			return nil, err
 		}
@@ -172,7 +192,7 @@ func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error)
 	} else if strings.HasSuffix(baseURL, "/sources") {
 		var body SourcesResp
 
-		err = json.NewDecoder(resp.Body).Decode(&body)
+		err = dc.Decode(&body)
 		if err != nil {
 			return nil, err
 		}
