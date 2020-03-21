@@ -17,6 +17,17 @@ type Client struct {
 }
 
 var (
+	ErrAPIKeyDisabled     = errors.New("Your API key has been disabled")
+	ErrAPIKeyExhausted    = errors.New("Your API key has no more requests available")
+	ErrAPIKeyInvalid      = errors.New("Your API key hasn't been entered correctly. Double check it and try again")
+	ErrAPIKeyMissing      = errors.New("Your API key is missing from the request. Append it to the request with one of these methods")
+	ErrParameterInvalid   = errors.New("You've included a parameter in your request which is currently not supported. Check the message property for more details")
+	ErrParametersMissing  = errors.New("Required parameters are missing from the request and it cannot be completed. Check the message property for more details")
+	ErrRateLimited        = errors.New("You have been rate limited. Back off for a while before trying the request again")
+	ErrSourcesTooMany     = errors.New("You have requested too many sources in a single request. Try splitting the request into 2 smaller requests")
+	ErrSourceDoesNotExist = errors.New("You have requested a source which does not exist")
+	ErrUnexpectedError    = errors.New("This shouldn't happen, and if it does then it's our fault, not yours. Try the request again shortly")
+
 	categoryOpts = []string{
 		"business",
 		"entertainment",
@@ -49,7 +60,7 @@ var (
 // request failed the message returned by the NewsAPI service will be returned to the user.
 type statusBody struct {
 	Status string `json:"status"`
-	Msg    string `json:"message"`
+	Code   string `json:"code"`
 }
 
 // articleSource is called "source" in the json response but it has a different values
@@ -143,6 +154,34 @@ func constructURL(baseURL string, opt interface{}) (string, error) {
 	return result, nil
 }
 
+// errType returns the type of the error code recieved
+func errType(errCode string) error {
+	switch errCode {
+	case "apiKeyDisabled":
+		return ErrAPIKeyDisabled
+	case "apiKeyExhausted":
+		return ErrAPIKeyExhausted
+	case "apiKeyInvalid":
+		return ErrAPIKeyInvalid
+	case "apiKeyMissing":
+		return ErrAPIKeyMissing
+	case "parameterInvalid":
+		return ErrParameterInvalid
+	case "parametersMissing":
+		return ErrParametersMissing
+	case "rateLimited":
+		return ErrRateLimited
+	case "sourcesTooMany":
+		return ErrSourcesTooMany
+	case "sourceDoesNotExist":
+		return ErrSourceDoesNotExist
+	case "unexpectedError":
+		return ErrUnexpectedError
+	default:
+		return errors.New("Got an unknown error back from the API")
+	}
+}
+
 // fectchGetRoute exclusively fetches GET routes as other http methods aren't currently supported by the "NewsAPI" service
 // and adding a param for the http methood seems unnecessary and just makes things more complicated
 func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error) {
@@ -176,7 +215,8 @@ func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error)
 	}
 
 	if errBody.Status == "error" {
-		return nil, errors.New("The NewsAPI send the following error: \"" + errBody.Msg + "\"")
+		err = errType(errBody.Code)
+		return nil, err
 	}
 
 	// parse the json into the specific return type based on the baseURL route
