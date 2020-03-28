@@ -6,14 +6,16 @@ Every project has to first initialize a client obejct with an API key like so:
 
 	c := newsapi.Client{APIKey: "your-api-key"}
 
-After that, one of three methods of the Client object can be called. The methods are called TopHeadlines, Everything and Sources. 
+After that, one of three methods of the Client object can be called. The methods are called TopHeadlines, Everything and Sources.
 Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end. Here's an example of fetching the top headlines from the UK:
 
-opts := newsapi.TopHeadlinesOpts{
-  Country: "uk",
-}
+	ctx := context.Background()
 
-	r, err := c.TopHeadlines(opts)
+	opts := newsapi.TopHeadlinesOpts{
+		Country: "uk",
+	}
+
+	r, err := c.TopHeadlines(ctx, opts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,14 +35,15 @@ The API also has an "Article" type which represents an article in the "Articles"
 For a full example of how to do this, please refer to the github page of this library (https://github.com/richarddes/newsapi-golang).
 Here's a quick example of how to print the Titles of all articles returned by the TopHeadlines route:
 
+	ctx := context.Background()
+
 	opts := newsapi.TopHeadlinesOpts{
 		Country: "uk",
 	}
 
-	r, err := c.TopHeadlines(opts)
+	r, err := c.TopHeadlines(ctx, opts)
 	for _, a in range r.Articles {
 		fmt.Println(article.Title)
 	}
 */
-
 package newsapi

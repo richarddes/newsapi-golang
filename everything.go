@@ -1,6 +1,7 @@
 package newsapi
 
 import (
+	"context"
 	"errors"
 	"reflect"
 	"time"
@@ -45,7 +46,7 @@ func checkEverythingParams(opts EverythingOpts) error {
 }
 
 // Everything fetches the data from the /everything route and returns the response as an EverythingResp object.
-func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
+func (c *Client) Everything(ctx context.Context, opts EverythingOpts) (EverythingResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkEverythingParams(opts)
 		if err != nil {
@@ -53,7 +54,7 @@ func (c *Client) Everything(opts EverythingOpts) (EverythingResp, error) {
 		}
 	}
 
-	body, err := fetchGetRoute("https://newsapi.org/v2/everything", c.APIKey, opts)
+	body, err := fetchGetRoute(ctx, "https://newsapi.org/v2/everything", c.APIKey, opts)
 	if err != nil {
 		return EverythingResp{}, err
 	}

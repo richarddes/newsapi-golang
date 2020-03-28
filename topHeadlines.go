@@ -1,6 +1,7 @@
 package newsapi
 
 import (
+	"context"
 	"errors"
 	"reflect"
 )
@@ -43,7 +44,7 @@ func checkTopHeadlinesParams(opts TopHeadlinesOpts) error {
 }
 
 // TopHeadlines fetches the data from the /top-headlines route and returns the response as a TopHeadlinesResp object.
-func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
+func (c *Client) TopHeadlines(ctx context.Context, opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkTopHeadlinesParams(opts)
 		if err != nil {
@@ -51,7 +52,7 @@ func (c *Client) TopHeadlines(opts TopHeadlinesOpts) (TopHeadlinesResp, error) {
 		}
 	}
 
-	body, err := fetchGetRoute("https://newsapi.org/v2/top-headlines", c.APIKey, opts)
+	body, err := fetchGetRoute(ctx, "https://newsapi.org/v2/top-headlines", c.APIKey, opts)
 	if err != nil {
 		return TopHeadlinesResp{}, err
 	}

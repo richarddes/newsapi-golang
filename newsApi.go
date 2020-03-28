@@ -1,6 +1,7 @@
 package newsapi
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -118,6 +119,7 @@ func constructURL(baseURL string, opt interface{}) (string, error) {
 	buf := strings.Builder{}
 	buf.WriteString(baseURL + "?")
 
+	// build the url based on opt's fields
 	for i := 0; i < s.NumField(); i++ {
 		var (
 			fieldName  = strings.ToLower(s.Type().Field(i).Name)
@@ -184,7 +186,7 @@ func errType(errCode string) error {
 
 // fectchGetRoute exclusively fetches GET routes as other http methods aren't currently supported by the "NewsAPI" service
 // and adding a param for the http methood seems unnecessary and just makes things more complicated
-func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error) {
+func fetchGetRoute(ctx context.Context, baseURL, apiKey string, opt interface{}) (interface{}, error) {
 	if apiKey == "" {
 		return nil, errors.New("The API key cannot be nil")
 	}
@@ -194,7 +196,7 @@ func fetchGetRoute(baseURL, apiKey string, opt interface{}) (interface{}, error)
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}

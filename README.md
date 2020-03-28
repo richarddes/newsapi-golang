@@ -15,14 +15,16 @@ Every project has to first initialize a client obejct with an API key like so:
 ```go
 c := newsapi.Client{APIKey: "your-api-key"}
 ```
-After that, one of three methods of the Client object can be called. The methods are called **TopHeadlines**, **Everything** and **Sources**. Each one of them takes in an options struct which is called like the method plus the word "Opts" at the end.
+After that, one of three methods of the Client object can be called. The methods are called **TopHeadlines**, **Everything** and **Sources**. Each one of accepts a context and an options struct which is called exactly like the method plus the word "Opts" at the end.
 Here's an example of fetching the top headlines from the UK:
 ```go
+ctx := context.Background()
+
 opts := newsapi.TopHeadlinesOpts{
   Country: "uk",
 }
 
-r, err := c.TopHeadlines(opts)
+r, err := c.TopHeadlines(ctx, opts)
 if err != nil {
 	log.Fatal(err)
 }
@@ -34,21 +36,23 @@ When fetching everything at least one of the following options must be specified
 
 For more details about the options structs please refer to the [docs](https://godoc.org/github.com/richarddes/newsapi-golang).
 
-Since the **TopHeadlines** and **Everything** routes both return a response type of the same underlying type called "articleResp" you can cast them from one to another: 
+Since the **TopHeadlines** and **Everything** routes both return a response type of the same underlying type called "articleResp", you can cast them from one to another: 
 ```go
 thr := newsapi.TopHeadlinesResp{}
 er := newsapi.EverythingResp(t)
 ```
-The decision to give the two routes different response types has been made to make the API more explicit but this might change in the future.
+The decision to give the two routes different response types has been made to make the API more explicit.
 
-The API also has an "Article" type which represents an article in the "Articles" field of the "TopHeadlinesResp" or "EverythingResp" object. It's useful if, for instance, you want to store the Articles returned by the **TopHeadlines** and **Everything** routes in a database. You can see a full example of how to do this down below.   
+The API also has an "Article" type which represents an article in the "Articles" field of the "TopHeadlinesResp" or "EverythingResp" object. It's useful if, for instance, you want to store the Articles returned by the **TopHeadlines** and **Everything** routes in a database. A full example of how to do this can be found down below.   
 Here's a quick example of how to print the Titles of all articles returned by the **TopHeadlines** route:
 ```go
+ctx := context.Background()
+
 opts := newsapi.TopHeadlinesOpts{
   Country: "uk",
 }
 
-r, err := c.TopHeadlines(opts)
+r, err := c.TopHeadlines(ctx, opts)
 for _, a in range r.Articles {
 	fmt.Println(article.Title)	
 }
@@ -62,6 +66,7 @@ news(url TEXT PRIMARY KEY, author TEXT, title TEXT, source TEXT)
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 
@@ -82,12 +87,16 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer stmt.Close()
+
+	ctx := context.Background()
+
 	c := newsapi.Client{APIKey: "your-api-key"}
 	opts := newsapi.TopHeadlinesOpts{
 		Country: "uk",
 	}
 
-	r, err := c.TopHeadlines(opts)
+	r, err := c.TopHeadlines(ctx, opts)
 	if err != nil {
 		log.Fatal(err)
 	}

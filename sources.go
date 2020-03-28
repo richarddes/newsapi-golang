@@ -1,6 +1,7 @@
 package newsapi
 
 import (
+	"context"
 	"errors"
 	"reflect"
 )
@@ -43,7 +44,7 @@ func checkSourcesParams(opts SourcesOpts) error {
 }
 
 // Sources fetches data from the /sources route and returns the content as a SourcesResp object.
-func (c *Client) Sources(opts SourcesOpts) (SourcesResp, error) {
+func (c *Client) Sources(ctx context.Context, opts SourcesOpts) (SourcesResp, error) {
 	if reflect.ValueOf(opts).Kind() != reflect.Invalid {
 		err := checkSourcesParams(opts)
 		if err != nil {
@@ -51,7 +52,7 @@ func (c *Client) Sources(opts SourcesOpts) (SourcesResp, error) {
 		}
 	}
 
-	body, err := fetchGetRoute("https://newsapi.org/v2/sources", c.APIKey, opts)
+	body, err := fetchGetRoute(ctx, "https://newsapi.org/v2/sources", c.APIKey, opts)
 	if err != nil {
 		return SourcesResp{}, err
 	}
