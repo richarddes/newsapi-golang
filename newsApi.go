@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"sort"
@@ -80,16 +81,16 @@ type Article struct {
 	Description string        `json:"description"`
 	URL         string        `json:"url"`
 	URLToImage  string        `json:"urlToImage"`
-	PublishedAt string        `json:"publishedAt"`
+	PublishedAt time.Time     `json:"publishedAt"`
 	Content     string        `json:"content"`
 }
 
 // articleResp is the underlying type for the TopHeadlinesResp and EverythingResp types. It represents
 // the  response from the /top-headlines and /everything routes.
 type articleResp struct {
-	Status       string    `json:"status"`
-	TotalResults uint      `json:"totalResults"`
-	Articles     []Article `json:"articles"`
+	Status string `json:"status"`
+	// TotalResults uint      `json:"totalResults"`
+	Articles []Article `json:"articles"`
 }
 
 func isOptOf(userOpt string, optArr []string) bool {
@@ -207,11 +208,16 @@ func fetchGetRoute(ctx context.Context, baseURL, apiKey string, opt interface{})
 		return nil, err
 	}
 
+	defer resp.Body.Close()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	var errBody statusBody
 
-	dc := json.NewDecoder(resp.Body)
-
-	err = dc.Decode(&errBody)
+	err = json.Unmarshal(b, &errBody)
 	if err != nil {
 		return nil, err
 	}
@@ -221,11 +227,11 @@ func fetchGetRoute(ctx context.Context, baseURL, apiKey string, opt interface{})
 		return nil, err
 	}
 
-	// parse the json into the specific return type based on the baseURL route
+	// parse the json into the specific return type based on the baseURL suffix
 	if strings.HasSuffix(baseURL, "/top-headlines") || strings.HasSuffix(baseURL, "/everything") {
 		var body articleResp
 
-		err = dc.Decode(&body)
+		err = json.Unmarshal(b, &body)
 		if err != nil {
 			return nil, err
 		}
@@ -234,7 +240,7 @@ func fetchGetRoute(ctx context.Context, baseURL, apiKey string, opt interface{})
 	} else if strings.HasSuffix(baseURL, "/sources") {
 		var body SourcesResp
 
-		err = dc.Decode(&body)
+		err = json.Unmarshal(b, &body)
 		if err != nil {
 			return nil, err
 		}
