@@ -1,5 +1,5 @@
 # NewsAPI Golang
-[![GoDoc](https://godoc.org/github.com/richarddes/newsapi-golang?status.svg)](https://godoc.org/github.com/richarddes/newsapi-golang)
+[![GoDoc](https://godoc.org/github.com/richarddes/newsapi-golang?status.svg)](https://pkg.go.dev/github.com/richarddes/newsapi-golang)
 
 A simple to use Golang client for the [NewsAPI](https://newsapi.org/) service.
 
